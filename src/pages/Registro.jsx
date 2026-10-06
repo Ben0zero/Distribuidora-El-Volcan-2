@@ -1,10 +1,23 @@
 ﻿import { useForm } from 'react-hook-form'
 import { useNavigate, Link } from 'react-router-dom'
-import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap'
+import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap'
 
 const CLAVE_USUARIOS = 'usuarios'
 
-const REGIONES = [{ nombre: 'Región de Ñuble', comunas: ['Chillán', 'Chillán Viejo', 'El Carmen', 'Pinto', 'San Ignacio', 'Bulnes', 'Quillón'] }]
+const REGIONES = [
+  {
+    nombre: 'Región de Ñuble',
+    comunas: [
+      'Chillán',
+      'Chillán Viejo',
+      'El Carmen',
+      'Pinto',
+      'San Ignacio',
+      'Bulnes',
+      'Quillón'
+    ]
+  }
+]
 
 function Registro() {
   const navigate = useNavigate()
@@ -13,6 +26,7 @@ function Registro() {
     register,
     handleSubmit,
     watch,
+    getValues,
     setValue,
     formState: { errors }
   } = useForm({
@@ -167,7 +181,9 @@ function Registro() {
                       >
                         <option value="">Elige una región...</option>
                         {REGIONES.map((r) => (
-                          <option key={r.nombre} value={r.nombre}>{r.nombre}</option>
+                          <option key={r.nombre} value={r.nombre}>
+                            {r.nombre}
+                          </option>
                         ))}
                       </Form.Select>
                       {errors.region && <Form.Text className="text-danger">{errors.region.message}</Form.Text>}
@@ -182,9 +198,12 @@ function Registro() {
                         disabled={!regionSeleccionada}
                       >
                         <option value="">Elige una comuna...</option>
-                        {comunasRegion && comunasRegion.comunas.map((c) => (
-                          <option key={c} value={c}>{c}</option>
-                        ))}
+                        {comunasRegion &&
+                          comunasRegion.comunas.map((c) => (
+                            <option key={c} value={c}>
+                              {c}
+                            </option>
+                          ))}
                       </Form.Select>
                       {errors.comuna && <Form.Text className="text-danger">{errors.comuna.message}</Form.Text>}
                     </Form.Group>
@@ -211,7 +230,7 @@ function Registro() {
                     type="password"
                     {...register('confirmar', {
                       required: 'Confirma tu contraseña',
-                      validate: (v) => v === watch('password') || 'Las contraseñas no coinciden'
+                      validate: (v) => v === getValues('password') || 'Las contraseñas no coinciden'
                     })}
                     isInvalid={!!errors.confirmar}
                   />
@@ -228,7 +247,9 @@ function Registro() {
                 />
                 {errors.terminos && <Form.Text className="text-danger d-block mb-3">{errors.terminos.message}</Form.Text>}
 
-                <Button type="submit" variant="success">Registrarse</Button>
+                <Button type="submit" variant="success">
+                  Registrarse
+                </Button>
               </Form>
 
               <p className="mt-3 mb-0">
