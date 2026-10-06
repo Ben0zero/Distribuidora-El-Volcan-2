@@ -1,15 +1,13 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap'
 
 const CLAVE_USUARIOS = 'usuarios'
 const CLAVE_SESION = 'sesion'
-
 const ADMIN_DEFAULT = [{ nombre: 'Administrador', email: 'admin@duoc.cl', password: 'Admin123', rol: 'Administrador' }]
 
 function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [sesion, setSesion] = useState(() => {
     try {
@@ -20,18 +18,15 @@ function Login() {
   })
   const navigate = useNavigate()
 
-  const handleSubmit = (event) => {
-    event.preventDefault()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm({ defaultValues: { email: '', password: '' } })
 
-    if (!email.includes('@')) {
-      setError('El correo electrónico no es válido')
-      return
-    }
-
-    if (password.length < 4) {
-      setError('La contraseña debe tener al menos 4 caracteres')
-      return
-    }
+  const onSubmit = (data) => {
+    const email = data.email.trim()
+    const password = data.password
 
     const usuariosGuardados = JSON.parse(localStorage.getItem(CLAVE_USUARIOS)) || []
     const usuarios = [...ADMIN_DEFAULT, ...usuariosGuardados]
@@ -82,23 +77,39 @@ function Login() {
           <Card>
             <Card.Body>
               <Card.Title>Iniciar Sesión</Card.Title>
-              <Form onSubmit={handleSubmit}>
+              <Form onSubmit={handleSubmit(onSubmit)}>
                 <Form.Group className="mb-3" controlId="email">
                   <Form.Label>Correo electrónico</Form.Label>
                   <Form.Control
                     type="text"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
+                    {...register('email', {
+                      required: 'El correo electrónico es obligatorio',
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: 'El correo electrónico no es válido'
+                      }
+                    })}
+                    isInvalid={!!errors.email}
                   />
+                  {errors.email && <Form.Text className="text-danger">{errors.email.message}</Form.Text>}
                 </Form.Group>
+
                 <Form.Group className="mb-3" controlId="password">
                   <Form.Label>Contraseña</Form.Label>
                   <Form.Control
                     type="password"
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
+                    {...register('password', {
+                      required: 'La contraseña es obligatoria',
+                      minLength: {
+                        value: 4,
+                        message: 'La contraseña debe tener al menos 4 caracteres'
+                      }
+                    })}
+                    isInvalid={!!errors.password}
                   />
+                  {errors.password && <Form.Text className="text-danger">{errors.password.message}</Form.Text>}
                 </Form.Group>
+
                 {error && <Alert variant="danger">{error}</Alert>}
                 <Button type="submit" variant="primary">
                   Ingresar
